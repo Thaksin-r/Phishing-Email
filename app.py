@@ -10,11 +10,11 @@ try:
     from Detection.risk_engine import analyze_email
 except ImportError as exc:
     raise ImportError(
-        "Could not import analyze_email from risk_engine.py. "
-        "Copy your existing risk_engine.py (and its ml_detector/url_analyzer/"
-        "header_analyzer dependencies) into the project root or update the "
-        "import path in backend/app.py."
+        f"Could not import analyze_email from risk_engine.py. "
+        f"Original error: {exc}. "
+        f"If this says a package is missing, run: pip install -r requirements.txt."
     ) from exc
+
 
 app = Flask(__name__)
 CORS(app)

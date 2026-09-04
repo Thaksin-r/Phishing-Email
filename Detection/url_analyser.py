@@ -24,6 +24,18 @@ KNOWN_BRANDS = [
     "flipkart.com", "paytm.com", "sbi.co.in", "hdfcbank.com"
 ]
 
+BRAND_NAMES = [d.split(".")[0] for d in KNOWN_BRANDS]
+
+def _brand_stuffing_check(domain: str) -> str | None:
+    """Catches brand name stuffed into a longer fake domain, e.g.
+    'fake-paypal-login-verify.xyz' — Levenshtein ratio misses this."""
+    for brand in BRAND_NAMES:
+        if brand in domain and domain not in KNOWN_BRANDS:
+            brand_real_domains = [d for d in KNOWN_BRANDS if brand in d]
+            if domain not in brand_real_domains:
+                return brand
+    return None
+
 def extract_urls(text: str) -> list:
     pattern = r'https?://[^\s<>"\']+'
     return re.findall(pattern, text)
@@ -103,6 +115,10 @@ def analyze_url(url: str) -> dict:
         score += 25
         flags.append(f"brand_typosquat:{similarity:.2f}")
 
+    stuffed_brand = _brand_stuffing_check(registered_domain)
+    if stuffed_brand:
+        score += 25
+        flags.append(f"brand_domain_stuffing:{stuffed_brand}")
     # Check 6: domain age (best-effort, WHOIS is slow/flaky — call sparingly)
     age = _domain_age_days(registered_domain)
     if age is not None and age < 30:

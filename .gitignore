@@ -1,3 +1,18 @@
-/ML_Detector.py
-/Models
-/train_model.py
+# Secrets — never commit these
+.env
+credentials.json
+token.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Large / regenerable model artifacts — retrain locally via Detection/train_model.py
+# instead of committing binaries. Comment these two lines out if you'd
+# rather ship the pretrained .pkl files with the repo for easy demoing.
+Models/*.pkl
+
+# Editor
+.vscode/
