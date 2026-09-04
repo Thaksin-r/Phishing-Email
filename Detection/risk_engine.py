@@ -12,8 +12,10 @@ WEIGHTS = {"ai": 0.50, "url": 0.30, "header": 0.20}
 
 
 def classify(final_score: float) -> str:
-    if final_score <= 30:
+    if final_score <= 10:
         return "SAFE"
+    elif final_score <= 30:
+        return "LOW RISK"
     elif final_score <= 60:
         return "SUSPICIOUS"
     else:
@@ -40,15 +42,32 @@ def analyze_email(sender: str, reply_to: str, subject: str, body: str) -> dict:
     final = round(final, 2)
     label = classify(final)
 
-    # Merge flags into human-readable reasons for dashboard display
-    reasons = [r["word"] for r in ai_result["reasons"]]
+    reasons = []
+
+    for r in ai_result["reasons"]:
+        reasons.append({
+            "word": r["word"],
+            "source": "ml"
+        })
+
     if url_result["details"]:
         worst_url = max(
-                        url_result["details"],
-                        key=lambda x: x["score"]
-                    )
-        reasons += worst_url["flags"]
-    reasons += header_result["flags"]
+            url_result["details"],
+            key=lambda x: x["score"]
+        )
+
+        for flag in worst_url["flags"]:
+            reasons.append({
+                "word": flag,
+                "source": "url"
+            })
+
+    for flag in header_result["flags"]:
+        reasons.append({
+            "word": flag,
+            "source": "header"
+        })
+
 
     return {
         "final_score": final,
@@ -61,7 +80,6 @@ def analyze_email(sender: str, reply_to: str, subject: str, body: str) -> dict:
         "reasons": reasons,
         "urls_found": urls,
     }
-
 
 if __name__ == "__main__":
     result = analyze_email(
