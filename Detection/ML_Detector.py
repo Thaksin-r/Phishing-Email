@@ -5,7 +5,7 @@ and explain which words drove the prediction.
 """
 
 import joblib
-from train_model import clean_text
+from Detection.train_model import clean_text
 
 MODEL_DIR = "Models"
 
